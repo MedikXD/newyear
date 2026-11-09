@@ -35,7 +35,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      perspective: 1200px; /* Фокусное расстояние для объема */
+      perspective: 1200px;
       touch-action: none;
     }
 
@@ -49,7 +49,6 @@
       z-index: 1;
     }
 
-    /* 3D Сцена */
     .scene-3d {
       position: relative;
       width: 100%;
@@ -62,7 +61,6 @@
       z-index: 10;
     }
 
-    /* Геометрические грани-ленты в стиле референса на заднем плане */
     .origami-bg {
       position: absolute;
       width: 320px;
@@ -81,7 +79,6 @@
       transition: all 0.2s ease-out;
     }
 
-    /* Верхняя грань в форме темной ели */
     .facet-top {
       top: -40px;
       left: 40px;
@@ -93,7 +90,6 @@
       border-top: 1px solid rgba(52, 211, 153, 0.3);
     }
 
-    /* Средняя диагональная плоскость */
     .facet-mid {
       top: 100px;
       right: 20px;
@@ -105,7 +101,6 @@
       border-right: 1px solid rgba(147, 197, 253, 0.2);
     }
 
-    /* Нижняя острая грань */
     .facet-bot {
       bottom: -60px;
       left: 20px;
@@ -116,7 +111,6 @@
       transform: translateZ(-70px) rotateZ(-10deg);
     }
 
-    /* Центральная парящая карточка со стеклом и бликом */
     .card-core {
       position: relative;
       width: 90%;
@@ -128,12 +122,11 @@
       border-radius: 34px;
       padding: 42px 22px 34px;
       text-align: center;
-      transform: translateZ(40px); /* Вынос карточки вперед в 3D */
+      transform: translateZ(40px);
       box-shadow: 0 35px 70px -15px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.15);
       overflow: hidden;
     }
 
-    /* Динамический световой блик по поверхности при повороте */
     .glass-glare {
       position: absolute;
       top: -50%;
@@ -205,7 +198,6 @@
       transform: translateZ(15px);
     }
 
-    /* Таймер с объемным углублением */
     .timer-wrap {
       display: flex;
       justify-content: space-between;
@@ -248,7 +240,6 @@
       margin-bottom: 12px;
     }
 
-    /* Экран открытого письма */
     #revealed-screen {
       display: none;
       animation: smoothReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -283,7 +274,6 @@
       transform: translateZ(25px);
     }
 
-    /* Подсказка в 3D пространстве */
     .hint-3d {
       font-size: 0.72rem;
       color: #475569;
@@ -297,7 +287,6 @@
       transform: translateZ(10px);
     }
 
-    /* Футер */
     .footer-credits {
       margin-top: 26px;
       text-align: center;
@@ -322,21 +311,17 @@
 
   <canvas id="snow-canvas"></canvas>
 
-  <!-- 3D Интерактивная сцена -->
   <div class="scene-3d" id="interactive-scene">
-    
-    <!-- Объемные фоновые грани в стиле оригами -->
     <div class="origami-bg">
       <div class="origami-facet facet-top"></div>
       <div class="origami-facet facet-mid"></div>
       <div class="origami-facet facet-bot"></div>
     </div>
 
-    <!-- Основная 3D карточка -->
     <div class="card-core">
       <div class="glass-glare" id="card-glare"></div>
 
-      <!-- Экран ожидания (до 31 декабря 21:00) -->
+      <!-- Экран ожидания -->
       <div id="locked-screen">
         <div class="icon-box">
           <svg viewBox="0 0 24 24">
@@ -365,7 +350,7 @@
         </div>
       </div>
 
-      <!-- Экран раскрытого поздравления -->
+      <!-- Экран открытого поздравления -->
       <div id="revealed-screen">
         <div class="icon-box" style="border-color: rgba(255, 228, 160, 0.25);">
           <svg viewBox="0 0 24 24" style="stroke: #FFE4A0;">
@@ -393,13 +378,11 @@
     </div>
   </div>
 
-  <!-- Подпись внизу -->
   <div class="footer-credits">
     Сайт создан при поддержке by <span class="handwritten-name">Denis (Medik)</span> ✨
   </div>
 
   <script>
-    /* 3D Физика вращения пальцем и отслеживание наклона */
     const scene = document.getElementById('interactive-scene');
     const glare = document.getElementById('card-glare');
 
@@ -419,11 +402,9 @@
       const deltaX = (x - startTouchX) * 0.12;
       const deltaY = (y - startTouchY) * 0.12;
 
-      // Ограничиваем угол поворота для естественного объема
       targetY = Math.max(-26, Math.min(26, deltaX));
       targetX = Math.max(-26, Math.min(26, -deltaY));
 
-      // Двигаем световой блик по поверхности
       glare.style.transform = `translate(${targetY * 4}px, ${-targetX * 4}px)`;
     }
 
@@ -434,17 +415,14 @@
       glare.style.transform = 'translate(0px, 0px)';
     }
 
-    // События для сенсорного экрана айфона
     window.addEventListener('touchstart', (e) => handleStart(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
     window.addEventListener('touchmove', (e) => handleMove(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
     window.addEventListener('touchend', handleEnd);
 
-    // События для мыши (если открывать на компьютере)
     window.addEventListener('mousedown', (e) => handleStart(e.clientX, e.clientY));
     window.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
     window.addEventListener('mouseup', handleEnd);
 
-    // Плавная интерполяция движения (LERP) для кинематографичной инерции
     function render3D() {
       currentX += (targetX - currentX) * 0.08;
       currentY += (targetY - currentY) * 0.08;
@@ -453,8 +431,8 @@
     }
     render3D();
 
-    /* Таймер обратного отсчета */
-    const TARGET_DATE = new Date("2026-12-31T23:00:00Z").getTime();
+    /* Временная дата в прошлом (2020 год) для мгновенного просмотра */
+    const TARGET_DATE = new Date("2020-12-31T23:00:00Z").getTime();
     let fired = false;
 
     function refreshTimer() {
@@ -482,7 +460,6 @@
     setInterval(refreshTimer, 1000);
     refreshTimer();
 
-    /* Снегопад на фоне */
     const canvas = document.getElementById('snow-canvas');
     const ctx = canvas.getContext('2d');
     let w = canvas.width = window.innerWidth;
