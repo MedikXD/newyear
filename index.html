@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Новогоднее чудо ✨</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Montserrat:wght@300;400;600;800&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+      color: #fff;
+      font-family: 'Montserrat', sans-serif;
+      overflow-x: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px 16px;
+      position: relative;
+    }
+
+    /* Интерактивный фон со снегом */
+    canvas#snow-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Новогодняя гирлянда сверху экрана */
+    .garland {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      pointer-events: none;
+      z-index: 100;
+      padding-top: 6px;
+    }
+    .bulb {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      animation: flash 1.4s infinite alternate ease-in-out;
+    }
+    .bulb:nth-child(4n+1) { background: #ff3b30; box-shadow: 0 0 16px #ff3b30; animation-delay: 0.1s; }
+    .bulb:nth-child(4n+2) { background: #ffcc00; box-shadow: 0 0 16px #ffcc00; animation-delay: 0.4s; }
+    .bulb:nth-child(4n+3) { background: #34c759; box-shadow: 0 0 16px #34c759; animation-delay: 0.7s; }
+    .bulb:nth-child(4n+4) { background: #5856d6; box-shadow: 0 0 16px #5856d6; animation-delay: 1.0s; }
+
+    @keyframes flash {
+      0% { opacity: 0.3; transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1.15); }
+    }
+
+    /* Главная карточка в стиле Liquid Glass */
+    .glass-card {
+      position: relative;
+      z-index: 10;
+      max-width: 520px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 32px;
+      padding: 44px 24px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.04);
+      text-align: center;
+      transition: all 0.5s ease;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 16px;
+      background: rgba(255, 215, 0, 0.12);
+      border: 1px solid rgba(255, 215, 0, 0.35);
+      color: #ffd700;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-family: 'Comfortaa', cursive;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.3;
+    }
+
+    p.subtitle {
+      font-size: 0.98rem;
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-bottom: 30px;
+      font-weight: 300;
+    }
+
+    /* Цифровые плашки таймера */
+    .timer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .timer-item {
+      background: rgba(15, 23, 42, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 18px 4px 12px;
+      position: relative;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .timer-num {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #38bdf8;
+      text-shadow: 0 0 18px rgba(56, 189, 248, 0.5);
+      font-variant-numeric: tabular-nums;
+      display: block;
+      line-height: 1;
+    }
+
+    .timer-label {
+      font-size: 0.68rem;
+      color: #64748b;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-top: 8px;
+      display: block;
+      font-weight: 600;
+    }
+
+    /* Блок поздравления */
+    #congrats-card {
+      display: none;
+      animation: openGift 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes openGift {
+      0% { opacity: 0; transform: scale(0.9) translateY(20px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .festive-icon {
+      font-size: 3.5rem;
+      margin-bottom: 12px;
+      display: inline-block;
+      animation: floatIcon 3s ease-in-out infinite;
+    }
+
+    @keyframes floatIcon {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .letter {
+      text-align: left;
+      font-size: 1.08rem;
+      line-height: 1.85;
+      color: #e2e8f0;
+      margin-top: 24px;
+      white-space: pre-line;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 24px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-weight: 300;
+    }
+
+    .signature-box {
+      margin-top: 26px;
+      text-align: right;
+    }
+
+    .signature {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.45rem;
+      font-style: italic;
+      color: #38bdf8;
+      text-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Гирлянда -->
+  <div class="garland">
+    <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+    <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+    <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+    <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+  </div>
+
+  <!-- Холст со снегопадом -->
+  <canvas id="snow-canvas"></canvas>
+
+  <!-- Экран 1: Обратный отсчет (до 31 декабря 21:00 по -7ч Екб = 23:00 UTC) -->
+  <div class="glass-card" id="lock-card">
+    <div class="festive-icon">🔒🎁</div>
+    <div><span class="badge">Новогодняя капсула</span></div>
+    <h1>Подарок закрыт</h1>
+    <p class="subtitle">Послание откроется строго в назначенный час. Секунды тают, праздник всё ближе!</p>
+
+    <div class="timer-grid">
+      <div class="timer-item">
+        <span class="timer-num" id="d">00</span>
+        <span class="timer-label">Дней</span>
+      </div>
+      <div class="timer-item">
+        <span class="timer-num" id="h">00</span>
+        <span class="timer-label">Часов</span>
+      </div>
+      <div class="timer-item">
+        <span class="timer-num" id="m">00</span>
+        <span class="timer-label">Минут</span>
+      </div>
+      <div class="timer-item">
+        <span class="timer-num" id="s">00</span>
+        <span class="timer-label">Секунд</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Экран 2: Раскрытое поздравление (появится само со взрывом конфетти) -->
+  <div class="glass-card" id="congrats-card">
+    <div class="festive-icon">🎄✨</div>
+    <div><span class="badge" style="color: #34c759; border-color: rgba(52, 199, 89, 0.4);">Открыто!</span></div>
+    <h1>С Новым Годом!</h1>
+    
+    <div class="letter">
+Дорогие и самые близкие!
+
+Если перед вами открылась эта страница — значит, пришло то самое долгожданное время!
+
+От всей души хочу пожелать вам богатырского здоровья, душевного спокойствия и уверенности в завтрашнем дне. Пусть в нашем доме всегда царят тепло, уют, взаимопонимание и звонкий детский смех. 
+
+Пусть все сложные задачи легко решаются, цели достигаются, а новый год принесет только добрые вести, искреннюю радость и счастливые моменты рядом с теми, кто дорог.
+
+Спасибо за то, что вы есть!
+    </div>
+
+    <div class="signature-box">
+      <div class="signature">С любовью, Денис ❤️</div>
+    </div>
+  </div>
+
+  <script>
+    // 31 декабря 21:00 по часовому поясу (Екб - 7 часов), что равно 23:00:00 UTC
+    const TARGET_DATE = new Date("2026-12-31T23:00:00Z").getTime();
+    let celebrated = false;
+
+    function checkTimer() {
+      const now = new Date().getTime();
+      const diff = TARGET_DATE - now;
+
+      if (diff <= 0) {
+        document.getElementById('lock-card').style.display = 'none';
+        document.getElementById('congrats-card').style.display = 'block';
+
+        if (!celebrated) {
+          celebrated = true;
+          launchFireworks();
+        }
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      document.getElementById('d').innerText = String(days).padStart(2, '0');
+      document.getElementById('h').innerText = String(hours).padStart(2, '0');
+      document.getElementById('m').innerText = String(minutes).padStart(2, '0');
+      document.getElementById('s').innerText = String(seconds).padStart(2, '0');
+    }
+
+    setInterval(checkTimer, 1000);
+    checkTimer();
+
+    // Запуск салюта из конфетти
+    function launchFireworks() {
+      const duration = 6 * 1000;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 999 };
+
+      const interval = setInterval(function() {
+        const timeLeft = animationEnd - Date.now();
+        if (timeLeft <= 0) {
+          return clearInterval(interval);
+        }
+        const particleCount = 50 * (timeLeft / duration);
+        confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+        confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+      }, 250);
+    }
+
+    function randomInRange(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    // Реалистичный многослойный снегопад
+    const canvas = document.getElementById('snow-canvas');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    const flakes = Array.from({ length: 65 }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      r: Math.random() * 2.8 + 0.8,
+      d: Math.random() * 1.5 + 0.5,
+      alpha: Math.random() * 0.6 + 0.3
+    }));
+
+    function drawSnow() {
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = '#ffffff';
+      flakes.forEach(f => {
+        ctx.globalAlpha = f.alpha;
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2, true);
+        ctx.fill();
+        f.y += f.d;
+        f.x += Math.sin(f.y * 0.02) * 0.5;
+
+        if (f.y > height) {
+          f.y = -5;
+          f.x = Math.random() * width;
+        }
+      });
+      requestAnimationFrame(drawSnow);
+    }
+    drawSnow();
+  </script>
+</body>
+</html>
