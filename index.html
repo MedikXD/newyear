@@ -11,14 +11,10 @@
 
   <style>
     :root {
-      --bg-deep: #05070B;
-      --card-bg: rgba(13, 17, 23, 0.45);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --card-border-glow: rgba(186, 215, 255, 0.15);
-      --accent-warm: #FFE4A0;
-      --accent-ice: #93C5FD;
-      --text-main: #F1F5F9;
-      --text-muted: #64748B;
+      --bg-dark: #04060A;
+      --gold: #FFE4A0;
+      --ice: #93C5FD;
+      --emerald-dark: #061a14;
     }
 
     * {
@@ -26,20 +22,21 @@
       margin: 0;
       padding: 0;
       -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
 
     body {
       min-height: 100vh;
-      background: radial-gradient(circle at 50% 15%, #0B132B 0%, var(--bg-deep) 100%);
-      color: var(--text-main);
+      background: radial-gradient(circle at 50% 20%, #0c1829 0%, var(--bg-dark) 100%);
+      color: #fff;
       font-family: 'Plus Jakarta Sans', sans-serif;
-      overflow-x: hidden;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: 30px 18px 40px;
-      position: relative;
+      perspective: 1200px; /* Фокусное расстояние для объема */
+      touch-action: none;
     }
 
     canvas#snow-canvas {
@@ -52,98 +49,119 @@
       z-index: 1;
     }
 
-    .garland-wrapper {
-      position: fixed;
-      top: -12px;
-      left: 0;
-      width: 100%;
-      z-index: 100;
-      pointer-events: none;
-    }
-
-    svg.garland-svg {
-      width: 100%;
-      height: 60px;
-      overflow: visible;
-    }
-
-    .wire {
-      fill: none;
-      stroke: rgba(255, 255, 255, 0.12);
-      stroke-width: 1.2;
-    }
-
-    .light-socket {
-      width: 4px;
-      height: 6px;
-      background: #1e293b;
-      position: absolute;
-      border-radius: 1px;
-    }
-
-    .light-bulb {
-      position: absolute;
-      width: 9px;
-      height: 13px;
-      border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
-      top: 5px;
-      left: -2.5px;
-      animation: ambientGlow 2.5s infinite alternate ease-in-out;
-    }
-
-    .bulb-warm {
-      background: #FFE8AC;
-      box-shadow: 0 3px 14px 2px rgba(255, 220, 140, 0.55), 0 0 4px #FFF;
-    }
-    .bulb-gold {
-      background: #FDBA74;
-      box-shadow: 0 3px 14px 2px rgba(251, 146, 60, 0.5), 0 0 4px #FFF;
-      animation-delay: 0.8s;
-    }
-    .bulb-ice {
-      background: #BAE6FD;
-      box-shadow: 0 3px 14px 2px rgba(186, 230, 253, 0.55), 0 0 4px #FFF;
-      animation-delay: 1.6s;
-    }
-
-    @keyframes ambientGlow {
-      0% { opacity: 0.45; filter: brightness(0.85); }
-      100% { opacity: 1; filter: brightness(1.25); }
-    }
-
-    .frost-card {
+    /* 3D Сцена */
+    .scene-3d {
       position: relative;
-      z-index: 10;
-      max-width: 460px;
       width: 100%;
-      background: var(--card-bg);
-      backdrop-filter: blur(35px) saturate(180%);
-      -webkit-backdrop-filter: blur(35px) saturate(180%);
-      border: 1px solid var(--card-border);
-      border-top-color: var(--card-border-glow);
-      border-radius: 36px;
-      padding: 44px 22px 36px;
-      box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-      text-align: center;
-      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      max-width: 440px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transform-style: preserve-3d;
+      will-change: transform;
+      z-index: 10;
     }
 
-    .icon-container {
-      width: 58px;
-      height: 58px;
-      margin: 0 auto 20px;
+    /* Геометрические грани-ленты в стиле референса на заднем плане */
+    .origami-bg {
+      position: absolute;
+      width: 320px;
+      height: 480px;
+      transform-style: preserve-3d;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .origami-facet {
+      position: absolute;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      transition: all 0.2s ease-out;
+    }
+
+    /* Верхняя грань в форме темной ели */
+    .facet-top {
+      top: -40px;
+      left: 40px;
+      width: 240px;
+      height: 200px;
+      background: linear-gradient(135deg, rgba(8, 38, 28, 0.75) 0%, rgba(3, 16, 12, 0.9) 100%);
+      clip-path: polygon(50% 0%, 100% 70%, 75% 100%, 0% 40%);
+      transform: translateZ(-50px) rotateY(-12deg) rotateX(10deg);
+      border-top: 1px solid rgba(52, 211, 153, 0.3);
+    }
+
+    /* Средняя диагональная плоскость */
+    .facet-mid {
+      top: 100px;
+      right: 20px;
+      width: 250px;
+      height: 240px;
+      background: linear-gradient(215deg, rgba(17, 24, 39, 0.85) 0%, rgba(10, 15, 26, 0.95) 100%);
+      clip-path: polygon(25% 0%, 100% 30%, 80% 100%, 0% 70%);
+      transform: translateZ(-25px) rotateY(15deg) rotateX(-8deg);
+      border-right: 1px solid rgba(147, 197, 253, 0.2);
+    }
+
+    /* Нижняя острая грань */
+    .facet-bot {
+      bottom: -60px;
+      left: 20px;
+      width: 220px;
+      height: 180px;
+      background: linear-gradient(45deg, rgba(15, 23, 42, 0.8) 0%, rgba(5, 7, 11, 0.95) 100%);
+      clip-path: polygon(0% 20%, 80% 0%, 50% 100%, 10% 80%);
+      transform: translateZ(-70px) rotateZ(-10deg);
+    }
+
+    /* Центральная парящая карточка со стеклом и бликом */
+    .card-core {
+      position: relative;
+      width: 90%;
+      background: rgba(13, 20, 32, 0.55);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-top: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 34px;
+      padding: 42px 22px 34px;
+      text-align: center;
+      transform: translateZ(40px); /* Вынос карточки вперед в 3D */
+      box-shadow: 0 35px 70px -15px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      overflow: hidden;
+    }
+
+    /* Динамический световой блик по поверхности при повороте */
+    .glass-glare {
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.12) 0%, transparent 60%);
+      pointer-events: none;
+      transform: translateZ(1px);
+    }
+
+    .icon-box {
+      width: 54px;
+      height: 54px;
+      margin: 0 auto 18px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transform: translateZ(25px);
     }
 
-    .icon-container svg {
+    .icon-box svg {
       width: 24px;
       height: 24px;
-      stroke: var(--accent-warm);
+      stroke: var(--gold);
       stroke-width: 1.6;
       fill: none;
       stroke-linecap: round;
@@ -152,49 +170,51 @@
     }
 
     .tagline {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       letter-spacing: 2px;
       text-transform: uppercase;
-      color: var(--accent-ice);
+      color: var(--ice);
       font-weight: 600;
-      margin-bottom: 12px;
-      opacity: 0.9;
-    }
-
-    h1 {
-      font-size: 1.85rem;
-      font-weight: 600;
-      letter-spacing: -0.5px;
-      margin-bottom: 8px;
-      color: #FFFFFF;
+      margin-bottom: 10px;
+      transform: translateZ(15px);
     }
 
     .dedication {
-      display: inline-block;
-      font-size: 0.98rem;
-      color: var(--accent-warm);
+      font-size: 0.95rem;
+      color: var(--gold);
       font-weight: 500;
-      letter-spacing: 0.2px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
+      transform: translateZ(20px);
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+      transform: translateZ(25px);
     }
 
     p.desc {
-      font-size: 0.9rem;
-      color: var(--text-muted);
+      font-size: 0.88rem;
+      color: #94A3B8;
       line-height: 1.6;
       font-weight: 300;
-      max-width: 330px;
-      margin: 0 auto 30px;
+      max-width: 320px;
+      margin: 0 auto 26px;
+      transform: translateZ(15px);
     }
 
+    /* Таймер с объемным углублением */
     .timer-wrap {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 16px 10px;
-      background: rgba(0, 0, 0, 0.25);
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      border-radius: 24px;
+      padding: 14px 10px;
+      background: rgba(5, 8, 14, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 22px;
+      transform: translateZ(30px);
     }
 
     .time-slot {
@@ -205,31 +225,30 @@
     }
 
     .time-val {
-      font-size: 2rem;
+      font-size: 1.9rem;
       font-weight: 700;
       letter-spacing: -1px;
       font-variant-numeric: tabular-nums;
       color: #F8FAFC;
-      line-height: 1.05;
     }
 
     .time-sub {
-      font-size: 0.65rem;
+      font-size: 0.62rem;
       color: #475569;
       text-transform: uppercase;
-      letter-spacing: 1.5px;
+      letter-spacing: 1.2px;
       font-weight: 600;
-      margin-top: 6px;
+      margin-top: 5px;
     }
 
     .time-divider {
       color: #334155;
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       font-weight: 300;
-      margin-bottom: 14px;
-      user-select: none;
+      margin-bottom: 12px;
     }
 
+    /* Экран открытого письма */
     #revealed-screen {
       display: none;
       animation: smoothReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -242,117 +261,123 @@
 
     .greeting-letter {
       text-align: left;
-      font-size: 1.05rem;
+      font-size: 1.02rem;
       line-height: 1.85;
       color: #CBD5E1;
       font-weight: 300;
       white-space: pre-line;
-      margin: 24px 0;
-      padding: 22px 18px;
-      background: rgba(0, 0, 0, 0.2);
+      margin: 20px 0;
+      padding: 20px 16px;
+      background: rgba(0, 0, 0, 0.25);
       border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      transform: translateZ(20px);
     }
 
     .author-sign {
       text-align: right;
       font-family: 'Cormorant Garamond', serif;
       font-style: italic;
-      font-size: 1.5rem;
-      color: var(--accent-warm);
-      letter-spacing: 0.5px;
+      font-size: 1.45rem;
+      color: var(--gold);
+      transform: translateZ(25px);
     }
 
-    /* Нижняя подпись с рукописным стилем */
+    /* Подсказка в 3D пространстве */
+    .hint-3d {
+      font-size: 0.72rem;
+      color: #475569;
+      letter-spacing: 1px;
+      margin-top: 20px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transform: translateZ(10px);
+    }
+
+    /* Футер */
     .footer-credits {
-      margin-top: 32px;
+      margin-top: 26px;
       text-align: center;
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       color: #64748B;
-      letter-spacing: 0.5px;
       z-index: 10;
-      user-select: none;
+      pointer-events: none;
     }
 
     .handwritten-name {
       font-family: 'Marck Script', cursive;
       font-size: 1.55rem;
-      color: var(--accent-warm);
+      color: var(--gold);
       display: inline-block;
       margin-left: 3px;
       filter: drop-shadow(0 0 10px rgba(255, 228, 160, 0.35));
       vertical-align: middle;
-      letter-spacing: 0.8px;
     }
   </style>
 </head>
 <body>
 
-  <div class="garland-wrapper">
-    <svg class="garland-svg" viewBox="0 0 1000 60" preserveAspectRatio="none">
-      <path class="wire" d="M 0,10 Q 125,48 250,15 Q 375,50 500,15 Q 625,48 750,15 Q 875,50 1000,10" />
-    </svg>
-    <div style="position: absolute; top: 12px; left: 12%;"><div class="light-socket"></div><div class="light-bulb bulb-warm"></div></div>
-    <div style="position: absolute; top: 22px; left: 24%;"><div class="light-socket"></div><div class="light-bulb bulb-gold"></div></div>
-    <div style="position: absolute; top: 12px; left: 37%;"><div class="light-socket"></div><div class="light-bulb bulb-ice"></div></div>
-    <div style="position: absolute; top: 23px; left: 50%;"><div class="light-socket"></div><div class="light-bulb bulb-warm"></div></div>
-    <div style="position: absolute; top: 12px; left: 63%;"><div class="light-socket"></div><div class="light-bulb bulb-gold"></div></div>
-    <div style="position: absolute; top: 22px; left: 76%;"><div class="light-socket"></div><div class="light-bulb bulb-ice"></div></div>
-    <div style="position: absolute; top: 12px; left: 88%;"><div class="light-socket"></div><div class="light-bulb bulb-warm"></div></div>
-  </div>
-
   <canvas id="snow-canvas"></canvas>
 
-  <!-- Экран ожидания -->
-  <div class="frost-card" id="locked-screen">
-    <div class="icon-container">
-      <svg viewBox="0 0 24 24">
-        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-      </svg>
+  <!-- 3D Интерактивная сцена -->
+  <div class="scene-3d" id="interactive-scene">
+    
+    <!-- Объемные фоновые грани в стиле оригами -->
+    <div class="origami-bg">
+      <div class="origami-facet facet-top"></div>
+      <div class="origami-facet facet-mid"></div>
+      <div class="origami-facet facet-bot"></div>
     </div>
 
-    <div class="tagline">Новогоднее поздравление • 2027</div>
-    <div class="dedication">Мама и Папа, этот подарок для вас ✨</div>
-    <h1>Подарок заблокирован</h1>
-    <p class="desc">Послание откроется автоматически 31 декабря точно в назначенное время. Осталось совсем немного!</p>
+    <!-- Основная 3D карточка -->
+    <div class="card-core">
+      <div class="glass-glare" id="card-glare"></div>
 
-    <div class="timer-wrap">
-      <div class="time-slot">
-        <span class="time-val" id="d">00</span>
-        <span class="time-sub">дней</span>
-      </div>
-      <div class="time-divider">:</div>
-      <div class="time-slot">
-        <span class="time-val" id="h">00</span>
-        <span class="time-sub">часов</span>
-      </div>
-      <div class="time-divider">:</div>
-      <div class="time-slot">
-        <span class="time-val" id="m">00</span>
-        <span class="time-sub">минут</span>
-      </div>
-      <div class="time-divider">:</div>
-      <div class="time-slot">
-        <span class="time-val" id="s">00</span>
-        <span class="time-sub">секунд</span>
-      </div>
-    </div>
-  </div>
+      <!-- Экран ожидания (до 31 декабря 21:00) -->
+      <div id="locked-screen">
+        <div class="icon-box">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </div>
 
-  <!-- Экран открытого поздравления -->
-  <div class="frost-card" id="revealed-screen">
-    <div class="icon-container" style="border-color: rgba(255, 228, 160, 0.25);">
-      <svg viewBox="0 0 24 24" style="stroke: #FFE4A0;">
-        <polyline points="20 6 9 17 4 12"></polyline>
-      </svg>
-    </div>
+        <div class="tagline">Новогоднее поздравление • 2027</div>
+        <div class="dedication">Мама и Папа, этот подарок для вас ✨</div>
+        <h1>Подарок заблокирован</h1>
+        <p class="desc">Послание откроется автоматически 31 декабря точно в назначенное время. До праздника осталось:</p>
 
-    <div class="tagline" style="color: var(--accent-warm);">Подарок открыт</div>
-    <div class="dedication">Любимые Мама и Папа ❤️</div>
-    <h1>С Новым Годом!</h1>
+        <div class="timer-wrap">
+          <div class="time-slot"><span class="time-val" id="d">00</span><span class="time-sub">дней</span></div>
+          <div class="time-divider">:</div>
+          <div class="time-slot"><span class="time-val" id="h">00</span><span class="time-sub">часов</span></div>
+          <div class="time-divider">:</div>
+          <div class="time-slot"><span class="time-val" id="m">00</span><span class="time-sub">минут</span></div>
+          <div class="time-divider">:</div>
+          <div class="time-slot"><span class="time-val" id="s">00</span><span class="time-sub">секунд</span></div>
+        </div>
 
-    <div class="greeting-letter">
+        <div class="hint-3d">
+          <span>✦ Поворачивайте пальцем в 3D ✦</span>
+        </div>
+      </div>
+
+      <!-- Экран раскрытого поздравления -->
+      <div id="revealed-screen">
+        <div class="icon-box" style="border-color: rgba(255, 228, 160, 0.25);">
+          <svg viewBox="0 0 24 24" style="stroke: #FFE4A0;">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+
+        <div class="tagline" style="color: var(--gold);">Подарок открыт</div>
+        <div class="dedication">Любимые Мама и Папа ❤️</div>
+        <h1>С Новым Годом!</h1>
+
+        <div class="greeting-letter">
 Дорогие мои Мама и Папа!
 
 Если перед вами открылась эта страница — значит, пришло то самое долгожданное праздничное время!
@@ -360,17 +385,75 @@
 От всего сердца хочу сказать вам огромное спасибо за вашу заботу, поддержку, любовь и тепло, которые вы дарите каждый день. 
 
 Желаю вам крепчайшего здоровья, нескончаемой энергии, гармонии и душевного спокойствия. Пусть дом всегда будет наполнен уютом, радостью и смехом, а все невзгоды и переживания обходят нашу семью стороной. Пусть Новый год принесет только добрые события и счастливые мгновения!
-    </div>
+        </div>
 
-    <div class="author-sign">С любовью, ваш сын Денис</div>
+        <div class="author-sign">С любовью, ваш сын Денис</div>
+      </div>
+
+    </div>
   </div>
 
-  <!-- Строчка создателя -->
+  <!-- Подпись внизу -->
   <div class="footer-credits">
     Сайт создан при поддержке by <span class="handwritten-name">Denis (Medik)</span> ✨
   </div>
 
   <script>
+    /* 3D Физика вращения пальцем и отслеживание наклона */
+    const scene = document.getElementById('interactive-scene');
+    const glare = document.getElementById('card-glare');
+
+    let currentX = 0, currentY = 0;
+    let targetX = 0, targetY = 0;
+    let isTouching = false;
+    let startTouchX = 0, startTouchY = 0;
+
+    function handleStart(x, y) {
+      isTouching = true;
+      startTouchX = x;
+      startTouchY = y;
+    }
+
+    function handleMove(x, y) {
+      if (!isTouching) return;
+      const deltaX = (x - startTouchX) * 0.12;
+      const deltaY = (y - startTouchY) * 0.12;
+
+      // Ограничиваем угол поворота для естественного объема
+      targetY = Math.max(-26, Math.min(26, deltaX));
+      targetX = Math.max(-26, Math.min(26, -deltaY));
+
+      // Двигаем световой блик по поверхности
+      glare.style.transform = `translate(${targetY * 4}px, ${-targetX * 4}px)`;
+    }
+
+    function handleEnd() {
+      isTouching = false;
+      targetX = 0;
+      targetY = 0;
+      glare.style.transform = 'translate(0px, 0px)';
+    }
+
+    // События для сенсорного экрана айфона
+    window.addEventListener('touchstart', (e) => handleStart(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+    window.addEventListener('touchmove', (e) => handleMove(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+    window.addEventListener('touchend', handleEnd);
+
+    // События для мыши (если открывать на компьютере)
+    window.addEventListener('mousedown', (e) => handleStart(e.clientX, e.clientY));
+    window.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
+    window.addEventListener('mouseup', handleEnd);
+
+    // Плавная интерполяция движения (LERP) для кинематографичной инерции
+    function render3D() {
+      currentX += (targetX - currentX) * 0.08;
+      currentY += (targetY - currentY) * 0.08;
+      scene.style.transform = `rotateX(${currentX}deg) rotateY(${currentY}deg)`;
+      requestAnimationFrame(render3D);
+    }
+    render3D();
+
+    /* Таймер обратного отсчета */
     const TARGET_DATE = new Date("2026-12-31T23:00:00Z").getTime();
     let fired = false;
 
@@ -399,6 +482,7 @@
     setInterval(refreshTimer, 1000);
     refreshTimer();
 
+    /* Снегопад на фоне */
     const canvas = document.getElementById('snow-canvas');
     const ctx = canvas.getContext('2d');
     let w = canvas.width = window.innerWidth;
@@ -409,59 +493,34 @@
       h = canvas.height = window.innerHeight;
     });
 
-    let wind = 0;
-    window.addEventListener('touchmove', (e) => {
-      wind = (e.touches[0].clientX - w / 2) * 0.001;
-    });
-
-    const FLAKE_COUNT = 85;
-    const flakes = [];
-
-    for (let i = 0; i < FLAKE_COUNT; i++) {
-      flakes.push({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        size: Math.random() < 0.15 ? Math.random() * 3 + 3.5 : Math.random() * 2 + 1,
-        speedY: Math.random() * 0.8 + 0.4,
-        speedX: Math.random() * 0.4 - 0.2,
-        opacity: Math.random() * 0.6 + 0.25,
-        swing: Math.random() * Math.PI * 2,
-        swingSpeed: Math.random() * 0.02 + 0.01
-      });
-    }
+    const FLAKE_COUNT = 75;
+    const flakes = Array.from({ length: FLAKE_COUNT }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      size: Math.random() < 0.2 ? Math.random() * 3 + 3 : Math.random() * 2 + 1,
+      speedY: Math.random() * 0.7 + 0.4,
+      speedX: Math.random() * 0.4 - 0.2,
+      opacity: Math.random() * 0.5 + 0.25,
+      swing: Math.random() * Math.PI * 2,
+      swingSpeed: Math.random() * 0.02 + 0.01
+    }));
 
     function renderSnow() {
       ctx.clearRect(0, 0, w, h);
-
-      for (let i = 0; i < FLAKE_COUNT; i++) {
-        const f = flakes[i];
+      flakes.forEach(f => {
         f.swing += f.swingSpeed;
         f.y += f.speedY;
-        f.x += Math.sin(f.swing) * 0.6 + wind + f.speedX;
+        f.x += Math.sin(f.swing) * 0.6 + f.speedX;
 
-        if (f.size > 4) {
-          ctx.beginPath();
-          const grad = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.size * 1.8);
-          grad.addColorStop(0, `rgba(255, 255, 255, ${f.opacity})`);
-          grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-          ctx.fillStyle = grad;
-          ctx.arc(f.x, f.y, f.size * 1.8, 0, Math.PI * 2);
-          ctx.fill();
-        } else {
-          ctx.beginPath();
-          ctx.fillStyle = `rgba(240, 246, 255, ${f.opacity})`;
-          ctx.arc(f.x, f.y, f.size, 0, Math.PI * 2);
-          ctx.fill();
-        }
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(240, 246, 255, ${f.opacity})`;
+        ctx.arc(f.x, f.y, f.size, 0, Math.PI * 2);
+        ctx.fill();
 
-        if (f.y > h + 10) {
-          f.y = -10;
-          f.x = Math.random() * w;
-        }
+        if (f.y > h + 10) { f.y = -10; f.x = Math.random() * w; }
         if (f.x > w + 10) f.x = -10;
         if (f.x < -10) f.x = w + 10;
-      }
-
+      });
       requestAnimationFrame(renderSnow);
     }
     renderSnow();
